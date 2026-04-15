@@ -1,0 +1,35 @@
+name: CI — Auth Service
+
+on:
+  push:
+    branches: 
+      - develop
+      - main
+    paths:
+      - "services/auth-service/**"
+      - ".github/workflows/ci-auth-service.yml"
+      - ".github/workflows/_ci-template.yml"
+  pull_request:
+    branches:
+      - develop
+      - main
+    paths:
+      - "services/auth-service/**"
+      - ".github/workflows/ci-auth-service.yml"
+      - ".github/workflows/_ci-template.yml"
+
+# give the workflow permission to write to the repository contents
+permissions:
+  contents: write
+
+
+jobs:
+  ci:
+    uses: ./.github/workflows/_ci-template.yml
+    with:
+      service-name: auth-service
+      service-path: services/auth-service
+      runtime: node
+      node-version: "20"
+      environment: ${{ github.ref_name }}
+    secrets: inherit
