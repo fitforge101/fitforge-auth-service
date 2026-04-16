@@ -36,7 +36,7 @@ jobs:
   tag-release:
     needs: [build-publish]
     if: github.ref_name == 'main' && needs.build-publish.outputs.built == 'true'
-    uses: fitforge101/fitforge-shared/.github/workflows/tag-release.yml@feature/ci-template-split
+    uses: fitforge101/fitforge-shared/.github/workflows/ci-tag-release.yml@feature/ci-template-split
     with:
       service-name: auth-service
       service-path: .
