@@ -1,35 +1,43 @@
-name: CI — Auth Service
+name: CI - Auth Service
 
 on:
   push:
-    branches: 
-      - develop
-      - main
-    paths:
-      - "services/auth-service/**"
-      - ".github/workflows/ci-auth-service.yml"
-      - ".github/workflows/_ci-template.yml"
+    branches: [main, develop]
   pull_request:
-    branches:
-      - develop
-      - main
-    paths:
-      - "services/auth-service/**"
-      - ".github/workflows/ci-auth-service.yml"
-      - ".github/workflows/_ci-template.yml"
-
-# give the workflow permission to write to the repository contents
-permissions:
-  contents: write
-
+    branches: [main, develop]
 
 jobs:
-  ci:
-    uses: ./.github/workflows/_ci-template.yml
+  code-quality:
+    if: github.event_name == 'pull_request'
+    uses: fitforge101/fitforge-shared/.github/workflows/ci-sast-sca.yml@feature/ci-template-split
     with:
       service-name: auth-service
-      service-path: services/auth-service
+      service-path: .
       runtime: node
-      node-version: "20"
+    secrets:
+      SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SONAR_URL: ${{ secrets.SONAR_URL }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+
+  build-publish:
+    needs: [code-quality]
+    if: always() && needs.code-quality.result != 'failure' && needs.code-quality.result != 'cancelled'
+    uses: fitforge101/fitforge-shared/.github/workflows/ci-build-publish.yml@feature/ci-template-split
+    with:
+      service-name: auth-service
+      service-path: .
       environment: ${{ github.ref_name }}
-    secrets: inherit
+    secrets:
+      DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+      DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      BREVO_API_KEY: ${{ secrets.BREVO_API_KEY }}
+
+  tag-release:
+    needs: [build-publish]
+    if: github.ref_name == 'main' && needs.build-publish.outputs.built == 'true'
+    uses: fitforge101/fitforge-shared/.github/workflows/ci-tag-release.yml@feature/ci-template-split
+    with:
+      service-name: auth-service
+      service-path: .
+      image_tag: ${{ needs.build-publish.outputs.image_tag }}
