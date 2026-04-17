@@ -1,3 +1,1 @@
 # fitforge-auth-service
-
-#
