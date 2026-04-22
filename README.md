@@ -35,8 +35,8 @@ The `auth-service` manages user registration, secure authentication, and JSON We
 *Response:*
 ```json
 {
-  "token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...",
-  "userId": "64a1b2c3d4e5f67890123456",
+  "token": "xxxxxxxx",
+  "userId": "xxxxxxxx",
   "name": "Jane Doe"
 }
 ```
